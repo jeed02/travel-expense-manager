@@ -332,7 +332,7 @@ const CreateTrip = ({loaderData}: Route.ComponentProps) => {
                                 </FormItem>
                             )}
                         />
-                        <Button type="submit">Submit</Button>
+                        <Button type="submit" className="cursor-pointer">Submit</Button>
                     </form>
                 </Form></Card>
 
