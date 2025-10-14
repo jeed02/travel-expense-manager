@@ -43,3 +43,14 @@ declare interface Payout {
     hasPaid: boolean;
 }
 
+declare interface TripCardProps {
+    id: string;
+    name: string;
+    members: number;
+    budget: number;
+}
+
+declare interface Country {
+    name: string;
+    value: string;
+}
