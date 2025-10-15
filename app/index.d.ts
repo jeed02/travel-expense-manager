@@ -47,7 +47,7 @@ declare interface TripCardProps {
     id: string;
     name: string;
     members: number;
-    budget: number;
+    budget?: number;
 }
 
 declare interface Country {

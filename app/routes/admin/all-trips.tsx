@@ -40,9 +40,12 @@ const AllTrips = () => {
         <main className=" all-trips wrapper">
             <Header title="Your Trips" description="View and edit your trips" ctaText="Create Trip" ctaUrl="/trips/create"/>
 
-            {AllTripsDummyData.map((value, index) => (
-                <TripCard id={value.id} name={value.name} members={value.members} budget={value.budget} />
-            ))}
+            <section className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                {AllTripsDummyData.map((value, index) => (
+                    <TripCard id={value.id} name={value.name} members={value.members} budget={value.budget} />
+                ))}
+            </section>
+
         </main>
     )
 }
