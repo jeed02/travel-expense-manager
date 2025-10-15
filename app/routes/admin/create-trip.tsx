@@ -60,7 +60,6 @@ import {
 import {
     Calendar as CalendarIcon
 } from "lucide-react"
-import { MultiSelect } from "~/components/ui/multi-select";
 
 import Header from "~/components/Header";
 import {Card} from "~/components/ui/card";
@@ -69,14 +68,11 @@ const formSchema = z.object({
     name: z.string({
         error: "Name is required",
     }).min(1),
-    countries: z.string({
+    country: z.string({
         error: "Country is required"
     }),
     startDate: z.date(),
     endDate: z.date(),
-    supportedCurrencies: z.array(z.string()).min(1, {
-        error: "Please select at least one item"
-    })
 });
 
 export const loader = async () => {
@@ -88,11 +84,6 @@ export const loader = async () => {
         value: country.name.common,
     }));
 }
-
-const currencyList = [
-    {value: "USD", label: "USD"},
-    {value: "CAD", label: "CAD"}
-]
 
 
 const CreateTrip = ({loaderData}: Route.ComponentProps) => {
@@ -110,7 +101,6 @@ const CreateTrip = ({loaderData}: Route.ComponentProps) => {
         defaultValues: {
             "startDate": new Date(),
             "endDate": new Date(),
-            "supportedCurrencies": []
         },
     })
 
@@ -134,13 +124,9 @@ const CreateTrip = ({loaderData}: Route.ComponentProps) => {
             <Header title="Add a new Trip" description="Create a Trip" />
 
             <section className="wrapper-md">
-                <Card><Form {...form}>
-                    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8 max-w-3xl mx-auto py-10">
-
-                        <div className="grid grid-cols-12 gap-4">
-
-                            <div className="col-span-4">
-
+                <Card>
+                    <Form {...form}>
+                        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8 max-w-3xl mx-auto py-10">
                                 <FormField
                                     control={form.control}
                                     name="name"
@@ -159,182 +145,163 @@ const CreateTrip = ({loaderData}: Route.ComponentProps) => {
                                         </FormItem>
                                     )}
                                 />
-                            </div>
+                            <FormField
+                                control={form.control}
+                                name="country"
+                                render={({ field }) => (
+                                    <FormItem className="flex flex-col">
+                                        <FormLabel>Country</FormLabel>
+                                        <Popover>
+                                            <PopoverTrigger asChild>
+                                                <FormControl>
+                                                    <Button
+                                                        variant="outline"
+                                                        role="combobox"
+                                                        className={cn(
+                                                            "w-[200px] justify-between",
+                                                            !field.value && "text-muted-foreground"
+                                                        )}
 
-                        </div>
-                        <FormField
-                            control={form.control}
-                            name="countries"
-                            render={({ field }) => (
-                                <FormItem className="flex flex-col">
-                                    <FormLabel>Country</FormLabel>
-                                    <Popover>
-                                        <PopoverTrigger asChild>
-                                            <FormControl>
-                                                <Button
-                                                    variant="outline"
-                                                    role="combobox"
-                                                    className={cn(
-                                                        "w-[200px] justify-between",
-                                                        !field.value && "text-muted-foreground"
-                                                    )}
+                                                    >
+                                                        {field.value
+                                                            ? countryData.find(
+                                                                (c) => c.value === field.value
+                                                            )?.value
+                                                            : "Select country"}
+                                                        <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                                                    </Button>
+                                                </FormControl>
+                                            </PopoverTrigger>
+                                            <PopoverContent className="w-[200px] p-0">
+                                                <Command>
+                                                    <CommandInput placeholder="Search country..." />
+                                                    <CommandList>
+                                                        <CommandEmpty>No language found.</CommandEmpty>
+                                                        <CommandGroup>
+                                                            {countryData.map((c) => (
+                                                                <CommandItem
+                                                                    value={c.value}
+                                                                    key={c.value}
+                                                                    onSelect={() => {
+                                                                        form.setValue("country", c.value);
+                                                                    }}
+                                                                >
+                                                                    <Check
+                                                                        className={cn(
+                                                                            "mr-2 h-4 w-4",
+                                                                            c.value === field.value
+                                                                                ? "opacity-100"
+                                                                                : "opacity-0"
+                                                                        )}
+                                                                    />
+                                                                    {c.value}
+                                                                </CommandItem>
+                                                            ))}
+                                                        </CommandGroup>
+                                                    </CommandList>
+                                                </Command>
+                                            </PopoverContent>
+                                        </Popover>
+                                        <FormDescription>Country</FormDescription>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
 
-                                                >
-                                                    {field.value
-                                                        ? countryData.find(
-                                                            (c) => c.value === field.value
-                                                        )?.value
-                                                        : "Select country"}
-                                                    <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                                                </Button>
-                                            </FormControl>
-                                        </PopoverTrigger>
-                                        <PopoverContent className="w-[200px] p-0">
-                                            <Command>
-                                                <CommandInput placeholder="Search country..." />
-                                                <CommandList>
-                                                    <CommandEmpty>No language found.</CommandEmpty>
-                                                    <CommandGroup>
-                                                        {countryData.map((c) => (
-                                                            <CommandItem
-                                                                value={c.value}
-                                                                key={c.value}
-                                                                onSelect={() => {
-                                                                    form.setValue("countries", c.value);
-                                                                }}
+                            <div className="grid gap-4 lg:grid-cols-12 md:grid-cols-1">
+
+                                <div className="col-span-6">
+
+                                    <FormField
+                                        control={form.control}
+                                        name="startDate"
+                                        render={({ field }) => (
+                                            <FormItem className="flex flex-col">
+                                                <FormLabel>Start Date</FormLabel>
+                                                <Popover>
+                                                    <PopoverTrigger asChild>
+                                                        <FormControl>
+                                                            <Button
+                                                                variant={"outline"}
+                                                                className={cn(
+                                                                    "w-[240px] pl-3 text-left font-normal",
+                                                                    !field.value && "text-muted-foreground"
+                                                                )}
                                                             >
-                                                                <Check
-                                                                    className={cn(
-                                                                        "mr-2 h-4 w-4",
-                                                                        c.value === field.value
-                                                                            ? "opacity-100"
-                                                                            : "opacity-0"
-                                                                    )}
-                                                                />
-                                                                {c.value}
-                                                            </CommandItem>
-                                                        ))}
-                                                    </CommandGroup>
-                                                </CommandList>
-                                            </Command>
-                                        </PopoverContent>
-                                    </Popover>
-                                    <FormDescription>Country</FormDescription>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
+                                                                {field.value ? (
+                                                                    format(field.value, "PPP")
+                                                                ) : (
+                                                                    <span>Pick a date</span>
+                                                                )}
+                                                                <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                                                            </Button>
+                                                        </FormControl>
+                                                    </PopoverTrigger>
+                                                    <PopoverContent className="w-auto p-0" align="start">
+                                                        <Calendar
+                                                            mode="single"
+                                                            selected={field.value}
+                                                            onSelect={field.onChange}
+                                                            initialFocus
+                                                        />
+                                                    </PopoverContent>
+                                                </Popover>
+                                                <FormDescription>Beginning of Trip</FormDescription>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+                                </div>
 
-                        <div className="grid grid-cols-12 gap-4">
+                                <div className="col-span-6">
+                                    <FormField
+                                        control={form.control}
+                                        name="endDate"
+                                        render={({ field }) => (
+                                            <FormItem className="flex flex-col">
+                                                <FormLabel>End Date</FormLabel>
+                                                <Popover>
+                                                    <PopoverTrigger asChild>
+                                                        <FormControl>
+                                                            <Button
+                                                                variant={"outline"}
+                                                                className={cn(
+                                                                    "w-[240px] pl-3 text-left font-normal",
+                                                                    !field.value && "text-muted-foreground"
+                                                                )}
+                                                            >
+                                                                {field.value ? (
+                                                                    format(field.value, "PPP")
+                                                                ) : (
+                                                                    <span>Pick a date</span>
+                                                                )}
+                                                                <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                                                            </Button>
+                                                        </FormControl>
+                                                    </PopoverTrigger>
+                                                    <PopoverContent className="w-auto p-0" align="start">
+                                                        <Calendar
+                                                            mode="single"
+                                                            selected={field.value}
+                                                            onSelect={field.onChange}
+                                                            initialFocus
+                                                        />
+                                                    </PopoverContent>
+                                                </Popover>
+                                                <FormDescription>End date of Trip</FormDescription>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+                                </div>
 
-                            <div className="col-span-6">
-
-                                <FormField
-                                    control={form.control}
-                                    name="startDate"
-                                    render={({ field }) => (
-                                        <FormItem className="flex flex-col">
-                                            <FormLabel>Start Date</FormLabel>
-                                            <Popover>
-                                                <PopoverTrigger asChild>
-                                                    <FormControl>
-                                                        <Button
-                                                            variant={"outline"}
-                                                            className={cn(
-                                                                "w-[240px] pl-3 text-left font-normal",
-                                                                !field.value && "text-muted-foreground"
-                                                            )}
-                                                        >
-                                                            {field.value ? (
-                                                                format(field.value, "PPP")
-                                                            ) : (
-                                                                <span>Pick a date</span>
-                                                            )}
-                                                            <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                                                        </Button>
-                                                    </FormControl>
-                                                </PopoverTrigger>
-                                                <PopoverContent className="w-auto p-0" align="start">
-                                                    <Calendar
-                                                        mode="single"
-                                                        selected={field.value}
-                                                        onSelect={field.onChange}
-                                                        initialFocus
-                                                    />
-                                                </PopoverContent>
-                                            </Popover>
-                                            <FormDescription>Beginning of Trip</FormDescription>
-                                            <FormMessage />
-                                        </FormItem>
-                                    )}
-                                />
                             </div>
 
-                            <div className="col-span-6">
-                                <FormField
-                                    control={form.control}
-                                    name="endDate"
-                                    render={({ field }) => (
-                                        <FormItem className="flex flex-col">
-                                            <FormLabel>End Date</FormLabel>
-                                            <Popover>
-                                                <PopoverTrigger asChild>
-                                                    <FormControl>
-                                                        <Button
-                                                            variant={"outline"}
-                                                            className={cn(
-                                                                "w-[240px] pl-3 text-left font-normal",
-                                                                !field.value && "text-muted-foreground"
-                                                            )}
-                                                        >
-                                                            {field.value ? (
-                                                                format(field.value, "PPP")
-                                                            ) : (
-                                                                <span>Pick a date</span>
-                                                            )}
-                                                            <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                                                        </Button>
-                                                    </FormControl>
-                                                </PopoverTrigger>
-                                                <PopoverContent className="w-auto p-0" align="start">
-                                                    <Calendar
-                                                        mode="single"
-                                                        selected={field.value}
-                                                        onSelect={field.onChange}
-                                                        initialFocus
-                                                    />
-                                                </PopoverContent>
-                                            </Popover>
-                                            <FormDescription>End date of Trip</FormDescription>
-                                            <FormMessage />
-                                        </FormItem>
-                                    )}
-                                />
-                            </div>
 
-                        </div>
-
-                        <FormField
-                            control={form.control}
-                            name="supportedCurrencies"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Select Currencies</FormLabel>
-                                    <FormControl>
-                                        <MultiSelect
-                                            options={currencyList}
-                                            value={field.value}
-                                            onValueChange={field.onChange}
-                                            placeholder="Choose currencies..."
-                                        />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-                        <Button type="submit" className="cursor-pointer">Submit</Button>
-                    </form>
-                </Form></Card>
+                            <Button type="submit" className="cursor-pointer">Submit</Button>
+                        </form>
+                    </Form>
+                </Card>
 
             </section>
 
