@@ -1,7 +1,9 @@
 import React from 'react'
 import { Link, useLoaderData, useNavigate } from "react-router";
 import { logoutUser } from "~/appwrite/auth";
+import { IoIosLogOut } from "react-icons/io";
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
+import { FaPaperPlane } from "react-icons/fa";
 import { Button } from "~/components/ui/button";
 import {
     DropdownMenu,
@@ -32,7 +34,9 @@ const Navbar = () => {
             <div className="container mx-auto flex h-14 items-center justify-between px-4">
                 <div className="flex items-center gap-2">
                     <Link to="/trips" className="flex items-center gap-2">
-                        <div className="size-6 rounded bg-primary" />
+                        <div className="size-6 rounded bg-primary flex justify-center items-center" >
+                            <FaPaperPlane className="text-white"/>
+                        </div>
                         <span className="font-semibold">Trip Expense Manager</span>
                     </Link>
                 </div>
@@ -52,7 +56,10 @@ const Navbar = () => {
                             <DropdownMenuLabel>{user?.name || user?.email || "User"}</DropdownMenuLabel>
                             <DropdownMenuSeparator />
                             <DropdownMenuItem onClick={goProfile}>Profile</DropdownMenuItem>
-                            <DropdownMenuItem onClick={handleLogout} variant="destructive">Logout</DropdownMenuItem>
+                            <DropdownMenuItem onClick={handleLogout} variant="destructive">
+                                Logout
+                                <IoIosLogOut/>
+                            </DropdownMenuItem>
                         </DropdownMenuContent>
                     </DropdownMenu>
                 </div>

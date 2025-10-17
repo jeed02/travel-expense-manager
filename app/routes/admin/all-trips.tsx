@@ -37,7 +37,7 @@ const AllTrips = () => {
     ]
 
     return (
-        <main className=" all-trips wrapper">
+        <main className="all-trips wrapper">
             <Header title="Your Trips" description="View and edit your trips" ctaText="Create Trip" ctaUrl="/trips/create"/>
 
             <section className="grid grid-cols-1 md:grid-cols-4 gap-4">

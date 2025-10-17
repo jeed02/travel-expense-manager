@@ -63,6 +63,8 @@ import {
 
 import Header from "~/components/Header";
 import {Card} from "~/components/ui/card";
+import {account} from "~/appwrite/client";
+import {useNavigate} from "react-router";
 
 const formSchema = z.object({
     name: z.string({
@@ -88,8 +90,8 @@ export const loader = async () => {
 
 const CreateTrip = ({loaderData}: Route.ComponentProps) => {
     const countries = loaderData as Country[];
+    const navigate = useNavigate();
     const [loading, setLoading] = useState(false);
-
 
     const countryData = countries.map((country) => ({
         text: country.name,
@@ -105,17 +107,37 @@ const CreateTrip = ({loaderData}: Route.ComponentProps) => {
     })
 
     const onSubmit = async (values: z.infer < typeof formSchema > ) => {
-        // setLoading(true);
-        try {
-            console.log(values);
-            toast(
-                <pre className="mt-2 w-[340px] rounded-md bg-slate-950 p-4">
-          <code className="text-white">{JSON.stringify(values, null, 2)}</code>
-        </pre>
-            );
-        } catch (error) {
-            console.error("Form submission error", error);
-            toast.error("Failed to submit the form. Please try again.");
+        const user = await account.get();
+        if (!user.$id) {
+            console.error("User not authenticated");
+            setLoading(false);
+            return;
+        }
+
+        try{
+            setLoading(true);
+            const res = await fetch('/api/create-trip', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    name: values.name,
+                    country: values.country,
+                    startDate: values.startDate.toISOString(),
+                    endDate: values.endDate.toISOString(),
+                    adminId: user.$id
+                })
+            });
+
+            const result = await res.json();
+            console.log(result);
+            if (result?.id) {
+                navigate(`/trips/${result.id}`)
+            }
+        } catch (e: any){
+            console.error('Create trip error', e);
+            toast.error(e?.message || 'Failed to create trip');
+        } finally {
+            setLoading(false);
         }
     }
 
@@ -298,7 +320,7 @@ const CreateTrip = ({loaderData}: Route.ComponentProps) => {
                             </div>
 
 
-                            <Button type="submit" className="cursor-pointer">Submit</Button>
+                            <Button type="submit" className="cursor-pointer">{loading ? 'Creating Trip...' : 'Create Trip'}</Button>
                         </form>
                     </Form>
                 </Card>

@@ -6,11 +6,6 @@ declare interface BaseUser {
     imageUrl: string;
 }
 
-declare interface UserData extends BaseUser {
-    itineraryCreated: number | string;
-    status: "user" | "admin";
-}
-
 declare type User = BaseUser;
 
 declare interface Trip {
@@ -19,27 +14,30 @@ declare interface Trip {
     country: string;
     startDate: string;
     endDate: string;
-    currencies: string[];
-    members: string[];
 }
 
-declare interface Expense {
+declare interface CreateTripResponse {
+    id?: string;
+}
+
+interface Expense {
     id: string;
     name: string;
     amount: number;
     category: string;
     currency: string;
-    paidBy: string;
+    paidBy: TripMember;
     isAll: boolean;
-    sharedWith: string[];
+    sharedWith: TripMember[];
 }
 
 declare interface Payout {
     id: string;
-    owingUser: string;
+    owedBy: string;
     owedUser: string;
     amount: number;
-    item: string;
+    expenseId: string;
+    tripId: string;
     hasPaid: boolean;
 }
 
@@ -53,4 +51,11 @@ declare interface TripCardProps {
 declare interface Country {
     name: string;
     value: string;
+}
+
+interface TripMember {
+    id: string;
+    name: string;
+    email: string;
+    imageUrl?: string;
 }
