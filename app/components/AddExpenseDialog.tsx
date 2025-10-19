@@ -28,6 +28,7 @@ interface AddExpenseDialogProps {
     onOpenChange: (open: boolean) => void;
     members: TripMember[];
     tripId?: string;
+    onCreated?: (data: { id: string }) => void;
 }
 
 const CATEGORIES = [
@@ -45,7 +46,8 @@ export function AddExpenseDialog({
                                      open,
                                      onOpenChange,
                                      members,
-                                     tripId
+                                     tripId,
+                                     onCreated
                                  }: AddExpenseDialogProps) {
     const [name, setName] = useState("");
     const [amount, setAmount] = useState("");
@@ -85,9 +87,13 @@ export function AddExpenseDialog({
                 }),
             });
 
-
             if (!res.ok) {
                 console.error("Failed to create expense", await res.text());
+            } else {
+                const data = await res.json().catch(() => null);
+                if (data?.id && onCreated) {
+                    onCreated({ id: data.id });
+                }
             }
         } catch (err) {
             console.error("Error calling create-expense API", err);
