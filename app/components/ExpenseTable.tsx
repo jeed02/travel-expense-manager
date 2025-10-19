@@ -33,6 +33,7 @@ interface Expense {
 interface ExpensesTableProps {
     expenses: Expense[];
     displayCurrency: string;
+    members?: TripMember[];
 }
 
 const categoryColors: Record<string, string> = {
@@ -44,7 +45,7 @@ const categoryColors: Record<string, string> = {
     Other: "bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-400",
 };
 
-export function ExpensesTable({ expenses, displayCurrency }: ExpensesTableProps) {
+export function ExpensesTable({ expenses, displayCurrency, members }: ExpensesTableProps) {
     return (
         <div className="rounded-lg border bg-card">
             <Table>
@@ -61,6 +62,9 @@ export function ExpensesTable({ expenses, displayCurrency }: ExpensesTableProps)
                 </TableHeader>
                 <TableBody>
                     {expenses.map((expense) => {
+                        const memberMap = new Map((members || []).map(m => [m.id, m]));
+                        const paidByResolved = memberMap.get(expense.paidBy?.id) || expense.paidBy;
+                        const sharedResolved = expense.sharedWith?.map(m => memberMap.get(m.id) || m) || [];
                         const convertedAmount = convertCurrency(
                             expense.amount,
                             expense.currency,
@@ -93,10 +97,10 @@ export function ExpensesTable({ expenses, displayCurrency }: ExpensesTableProps)
                                 <TableCell>
                                     <div className="flex items-center gap-2">
                                         <Avatar className="size-6">
-                                            <AvatarImage src={expense.paidBy.imageUrl} alt={expense.paidBy.name} />
-                                            <AvatarFallback className="text-xs">{getInitials(expense.paidBy.name)}</AvatarFallback>
+                                            <AvatarImage src={paidByResolved.imageUrl} alt={paidByResolved.name} />
+                                            <AvatarFallback className="text-xs">{getInitials(paidByResolved.name || paidByResolved.id)}</AvatarFallback>
                                         </Avatar>
-                                        <span>{expense.paidBy.name}</span>
+                                        <span>{paidByResolved.name || paidByResolved.id}</span>
                                     </div>
                                 </TableCell>
                                 <TableCell className="text-center">
@@ -115,16 +119,16 @@ export function ExpensesTable({ expenses, displayCurrency }: ExpensesTableProps)
                                     ) : (
                                         <div className="flex items-center gap-1">
                                             <div className="flex -space-x-2">
-                                                {expense.sharedWith.slice(0, 3).map((member) => (
+                                                {sharedResolved.slice(0, 3).map((member) => (
                                                     <Avatar key={member.id} className="size-6 border-2 border-background">
                                                         <AvatarImage src={member.imageUrl} alt={member.name} />
-                                                        <AvatarFallback className="text-xs">{getInitials(member.name)}</AvatarFallback>
+                                                        <AvatarFallback className="text-xs">{getInitials(member.name || member.id)}</AvatarFallback>
                                                     </Avatar>
                                                 ))}
                                             </div>
-                                            {expense.sharedWith.length > 3 && (
+                                            {sharedResolved.length > 3 && (
                                                 <span className="text-xs text-muted-foreground ml-1">
-                          +{expense.sharedWith.length - 3}
+                          +{sharedResolved.length - 3}
                         </span>
                                             )}
                                         </div>

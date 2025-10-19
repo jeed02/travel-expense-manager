@@ -1,4 +1,7 @@
 // Top 15 most used currencies
+import {appwriteConfig, database} from "~/appwrite/client";
+import {Query} from "appwrite";
+
 export const CURRENCIES = [
     { code: "USD", name: "US Dollar", symbol: "$" },
     { code: "EUR", name: "Euro", symbol: "€" },
@@ -65,4 +68,34 @@ export function formatCurrency(amount: number, currencyCode: string): string {
     const decimals = currencyCode === "JPY" || currencyCode === "KRW" ? 0 : 2;
 
     return `${symbol}${amount.toFixed(decimals)}`;
+}
+
+export const getAllExpenses = async (tripId: string) => {
+    const allExpenses = await database.listDocuments(
+        appwriteConfig.databaseId,
+        "expenses",
+        [Query.equal("tripId", tripId), Query.orderDesc('$createdAt')]
+    );
+
+    if (allExpenses.total == 0){
+        return [] as Expense[];
+    }
+
+    const parsed: Expense[] = allExpenses.documents.map((doc: any) => {
+        // In DB, paidBy is stored as a userId (string) and sharedWith is an array of userIds (string[])
+        const paidById = String(doc?.paidBy ?? "");
+        const sharedWithIds: string[] = Array.isArray(doc?.sharedWith) ? doc.sharedWith.map((id: any) => String(id)) : [];
+        return {
+            id: doc?.$id ?? "",
+            name: String(doc?.name ?? ""),
+            amount: Number(doc?.amount ?? 0),
+            category: String(doc?.category ?? "Other"),
+            currency: String(doc?.currency ?? "USD"),
+            isAll: Boolean(doc?.isAll),
+            paidBy: { id: paidById, name: "", email: "" } as TripMember,
+            sharedWith: sharedWithIds.map((id) => ({ id, name: "", email: "" })) as TripMember[],
+        } as Expense;
+    });
+
+    return parsed;
 }

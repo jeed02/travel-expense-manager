@@ -7,7 +7,7 @@ import {ExpensesTable} from "~/components/ExpenseTable";
 import {Button} from "~/components/ui/button";
 import {Plus} from "lucide-react";
 import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from "~/components/ui/select";
-import {CURRENCIES} from "~/appwrite/expenses";
+import {CURRENCIES, getAllExpenses} from "~/appwrite/expenses";
 import {useState} from "react";
 import {AddExpenseDialog} from "~/components/AddExpenseDialog";
 
@@ -17,12 +17,13 @@ export const loader = async ({params}: LoaderFunctionArgs) => {
 
     if (!tripId) throw new Error("Trip Id is required");
 
-    const [trip, tripMembers] = await Promise.all([
+    const [trip, tripMembers, expenseData] = await Promise.all([
         getTripById(tripId),
         getTripMembers(tripId),
+        getAllExpenses(tripId)
     ])
 
-    return {trip, tripMembers};
+    return {trip, tripMembers, expenseData};
 }
 
 // Mock data
@@ -32,7 +33,7 @@ const initialExpensesData: Expense[] = [
         name: "Hotel Paris - 3 Nights",
         amount: 450.00,
         category: "Accommodation",
-        currency: "EUR",
+        currency: "USD",
         paidBy: { id: "1", name: "Sarah Chen", email: "sarah.chen@example.com" },
         isAll: true,
         sharedWith: [],
@@ -42,7 +43,7 @@ const initialExpensesData: Expense[] = [
         name: "Dinner at Le Bistro",
         amount: 125.50,
         category: "Food",
-        currency: "EUR",
+        currency: "USD",
         paidBy: { id: "2", name: "Mike Johnson", email: "mike.johnson@example.com" },
         isAll: true,
         sharedWith: [],
@@ -52,7 +53,7 @@ const initialExpensesData: Expense[] = [
         name: "Train to Rome",
         amount: 280.00,
         category: "Transport",
-        currency: "EUR",
+        currency: "USD",
         paidBy: { id: "3", name: "Emma Davis", email: "emma.davis@example.com" },
         isAll: false,
         sharedWith: [
@@ -66,7 +67,7 @@ const initialExpensesData: Expense[] = [
         name: "Colosseum Tickets",
         amount: 64.00,
         category: "Entertainment",
-        currency: "EUR",
+        currency: "USD",
         paidBy: { id: "4", name: "Alex Kim", email: "alex.kim@example.com" },
         isAll: true,
         sharedWith: [],
@@ -76,7 +77,7 @@ const initialExpensesData: Expense[] = [
         name: "Grocery Shopping",
         amount: 85.30,
         category: "Food",
-        currency: "EUR",
+        currency: "USD",
         paidBy: { id: "1", name: "Sarah Chen", email: "sarah.chen@example.com" },
         isAll: true,
         sharedWith: [],
@@ -86,7 +87,7 @@ const initialExpensesData: Expense[] = [
         name: "Uber to Airport",
         amount: 45.00,
         category: "Transport",
-        currency: "EUR",
+        currency: "USD",
         paidBy: { id: "2", name: "Mike Johnson", email: "mike.johnson@example.com" },
         isAll: false,
         sharedWith: [
@@ -99,7 +100,7 @@ const initialExpensesData: Expense[] = [
         name: "Souvenir Shopping",
         amount: 120.00,
         category: "Shopping",
-        currency: "EUR",
+        currency: "USD",
         paidBy: { id: "3", name: "Emma Davis", email: "emma.davis@example.com" },
         isAll: false,
         sharedWith: [
@@ -111,7 +112,7 @@ const initialExpensesData: Expense[] = [
         name: "Museum Pass Barcelona",
         amount: 95.00,
         category: "Entertainment",
-        currency: "EUR",
+        currency: "USD",
         paidBy: { id: "4", name: "Alex Kim", email: "alex.kim@example.com" },
         isAll: true,
         sharedWith: [],
@@ -121,7 +122,7 @@ const initialExpensesData: Expense[] = [
         name: "Tapas Restaurant",
         amount: 156.75,
         category: "Food",
-        currency: "EUR",
+        currency: "USD",
         paidBy: { id: "1", name: "Sarah Chen", email: "sarah.chen@example.com" },
         isAll: true,
         sharedWith: [],
@@ -131,7 +132,7 @@ const initialExpensesData: Expense[] = [
         name: "Airbnb Barcelona - 4 Nights",
         amount: 520.00,
         category: "Accommodation",
-        currency: "EUR",
+        currency: "USD",
         paidBy: { id: "2", name: "Mike Johnson", email: "mike.johnson@example.com" },
         isAll: true,
         sharedWith: [],
@@ -140,9 +141,8 @@ const initialExpensesData: Expense[] = [
 
 
 const TripDetail = ({loaderData}: Route.ComponentProps) => {
-    const {trip, tripMembers} = loaderData;
+    const {trip, tripMembers, expenseData} = loaderData;
     const [displayCurrency, setDisplayCurrency] = useState("USD");
-    const [expenses, setExpenses] = useState<Expense[]>(initialExpensesData);
     const [isAddExpenseOpen, setIsAddExpenseOpen] = useState(false);
 
     return (
@@ -184,7 +184,7 @@ const TripDetail = ({loaderData}: Route.ComponentProps) => {
                         </div>
                     </CardHeader>
                     <CardContent>
-                        <ExpensesTable expenses={initialExpensesData} displayCurrency={displayCurrency} />
+                        <ExpensesTable expenses={expenseData} displayCurrency={displayCurrency} members={tripMembers} />
                     </CardContent>
                 </Card>
 
