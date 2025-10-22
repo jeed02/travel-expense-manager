@@ -61,11 +61,14 @@ const getGooglePicture = async (accessToken: string) => {
     }
 };
 
-export const loginWithGoogle = async () => {
+export const loginWithGoogle = async (successRedirect?: string) => {
     try {
+        const success = successRedirect && successRedirect.length > 0
+            ? successRedirect
+            : `${window.location.origin}/trips`;
         account.createOAuth2Session(
             OAuthProvider.Google,
-            `${window.location.origin}/trips`,
+            success,
             `${window.location.origin}/404`
         );
     } catch (error) {

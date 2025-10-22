@@ -38,6 +38,7 @@ const TripDetail = ({loaderData}: Route.ComponentProps) => {
         <main className="min-h-screen bg-background wrapper">
             <div className="max-w-7xl mx-auto space-y-6">
                 <TripHeader
+                    tripId={trip?.$id}
                     tripName={trip?.name}
                     country={trip?.country}
                     startDate={trip?.startDate}

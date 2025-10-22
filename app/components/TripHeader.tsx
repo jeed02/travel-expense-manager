@@ -10,12 +10,14 @@ import {
     AvatarImage,
 } from "./ui/avatar";
 import { Badge } from "./ui/badge";
-import {Calendar, MapPin, Pencil, Users} from "lucide-react";
+import {Calendar, MapPin, Pencil, Users, Link2} from "lucide-react";
 import {Button} from "~/components/ui/button";
 import {formatDate} from "~/lib/utils";
+import {useState} from "react";
 
 
 interface TripHeaderProps {
+    tripId?: string;
     tripName: string;
     country: string;
     startDate: string;
@@ -23,13 +25,28 @@ interface TripHeaderProps {
     members: TripMember[];
 }
 
+
 export function TripHeader({
+                               tripId,
                                tripName,
                                country,
                                startDate,
                                endDate,
                                members,
                            }: TripHeaderProps) {
+    const [copied, setCopied] = useState(false);
+
+    const handleCopyInvite = async () => {
+        try {
+            const url = `${window.location.origin}/invite/${tripId}`;
+            await navigator.clipboard.writeText(url);
+            setCopied(true);
+            setTimeout(() => setCopied(false), 2000);
+        } catch (e) {
+            console.error('Failed to copy invite link', e);
+        }
+    };
+
     return (
         <Card>
             <CardHeader>
@@ -49,10 +66,16 @@ export function TripHeader({
                             </div>
                         </div>
                     </div>
-                    <Button variant="outline" size="sm">
-                        <Pencil className="size-4 mr-2" />
-                        Edit Trip
-                    </Button>
+                    <div className="flex items-center gap-2">
+                        <Button variant="secondary" size="sm" onClick={handleCopyInvite} disabled={!tripId}>
+                            <Link2 className="size-4 mr-2" />
+                            {copied ? 'Copied!' : 'Copy Invite Link'}
+                        </Button>
+                        <Button variant="outline" size="sm">
+                            <Pencil className="size-4 mr-2" />
+                            Edit Trip
+                        </Button>
+                    </div>
                 </div>
             </CardHeader>
             <CardContent>
